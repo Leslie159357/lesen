@@ -1,0 +1,52 @@
+name: Lesen
+options:
+  bundleIdPrefix: xyz.1122275
+  deploymentTarget:
+    iOS: "17.0"
+  createIntermediateGroups: true
+
+packages:
+  ZIPFoundation:
+    url: https://github.com/weichsel/ZIPFoundation.git
+    from: 0.9.19
+
+targets:
+  Lesen:
+    type: application
+    platform: iOS
+    sources:
+      - path: Sources
+      - path: Web
+        type: folder
+    dependencies:
+      - sdk: WebKit.framework
+      - sdk: AVFoundation.framework
+      - sdk: UniformTypeIdentifiers.framework
+      - package: ZIPFoundation
+        product: ZIPFoundation
+    info:
+      path: Sources/Info.plist
+      properties:
+        CFBundleDisplayName: 精读
+        CFBundleShortVersionString: "0.2.0"
+        CFBundleVersion: "1"
+        UIBackgroundModes: [audio]
+        UIFileSharingEnabled: true
+        LSSupportsOpeningDocumentsInPlace: true
+        UILaunchScreen: {}
+        UISupportedInterfaceOrientations:
+          - UIInterfaceOrientationPortrait
+          - UIInterfaceOrientationLandscapeLeft
+          - UIInterfaceOrientationLandscapeRight
+        CFBundleDocumentTypes:
+          - CFBundleTypeName: EPUB Book
+            CFBundleTypeRole: Viewer
+            LSHandlerRank: Alternate
+            LSItemContentTypes: [org.idpf.epub-container]
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: xyz.1122275.lesen
+        SWIFT_VERSION: "5.0"
+        TARGETED_DEVICE_FAMILY: "1,2"
+        CODE_SIGN_STYLE: Manual
+        CODE_SIGNING_ALLOWED: NO

@@ -1,0 +1,64 @@
+name: ios-unsigned-ipa
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: macos-26
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Show toolchain
+        run: |
+          xcodebuild -version
+          xcrun --sdk iphoneos --show-sdk-version
+
+      - name: Install xcodegen
+        run: brew install xcodegen
+
+      - name: Generate Xcode project
+        run: xcodegen generate
+
+      - name: Resolve packages
+        run: |
+          xcodebuild -resolvePackageDependencies \
+            -project Lesen.xcodeproj -scheme Lesen
+
+      - name: Archive (unsigned)
+        run: |
+          set -o pipefail
+          xcodebuild archive \
+            -project Lesen.xcodeproj \
+            -scheme Lesen \
+            -configuration Release \
+            -destination 'generic/platform=iOS' \
+            -archivePath "$RUNNER_TEMP/Lesen.xcarchive" \
+            CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO CODE_SIGN_IDENTITY="" \
+            | tee "$RUNNER_TEMP/build.log" | tail -40
+
+      - name: Collect compile errors (if any)
+        if: failure()
+        run: |
+          grep -E "error:|warning: .*deprecated" "$RUNNER_TEMP/build.log" | head -40 || true
+
+      - name: Package IPA
+        run: |
+          APP="$RUNNER_TEMP/Lesen.xcarchive/Products/Applications/Lesen.app"
+          ls -la "$(dirname "$APP")"
+          mkdir -p "$RUNNER_TEMP/Payload"
+          cp -R "$APP" "$RUNNER_TEMP/Payload/"
+          cd "$RUNNER_TEMP" && zip -qry Lesen-unsigned.ipa Payload
+          shasum -a 256 Lesen-unsigned.ipa
+          du -h Lesen-unsigned.ipa
+          # assert the JS reader actually made it into the bundle
+          unzip -l Lesen-unsigned.ipa | grep -E "Web/(reader|de-zh-demo)" || { echo "missing web assets"; exit 1; }
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Lesen-ipa
+          path: ${{ runner.temp }}/Lesen-unsigned.ipa
+          if-no-files-found: error

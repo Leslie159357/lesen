@@ -1,0 +1,676 @@
+[
+ {
+  "word": "der",
+  "pos": "art",
+  "zh": "阳性定冠词"
+ },
+ {
+  "word": "die",
+  "pos": "art",
+  "zh": "阴性/复数定冠词"
+ },
+ {
+  "word": "das",
+  "pos": "art",
+  "zh": "中性定冠词"
+ },
+ {
+  "word": "Haus",
+  "pos": "n",
+  "zh": "房子",
+  "note": "复数 Häuser"
+ },
+ {
+  "word": "Baum",
+  "pos": "n",
+  "zh": "树",
+  "note": "复数 Bäume"
+ },
+ {
+  "word": "Wasser",
+  "pos": "n",
+  "zh": "水"
+ },
+ {
+  "word": "Brot",
+  "pos": "n",
+  "zh": "面包"
+ },
+ {
+  "word": "Buch",
+  "pos": "n",
+  "zh": "书",
+  "note": "复数 Bücher"
+ },
+ {
+  "word": "Tisch",
+  "pos": "n",
+  "zh": "桌子"
+ },
+ {
+  "word": "Stuhl",
+  "pos": "n",
+  "zh": "椅子",
+  "note": "复数 Stühle"
+ },
+ {
+  "word": "Fenster",
+  "pos": "n",
+  "zh": "窗户"
+ },
+ {
+  "word": "Tür",
+  "pos": "n",
+  "zh": "门"
+ },
+ {
+  "word": "Straße",
+  "pos": "n",
+  "zh": "街道"
+ },
+ {
+  "word": "Stadt",
+  "pos": "n",
+  "zh": "城市",
+  "note": "复数 Städte"
+ },
+ {
+  "word": "Land",
+  "pos": "n",
+  "zh": "国家/乡村"
+ },
+ {
+  "word": "Mann",
+  "pos": "n",
+  "zh": "男人",
+  "note": "复数 Männer"
+ },
+ {
+  "word": "Frau",
+  "pos": "n",
+  "zh": "女人"
+ },
+ {
+  "word": "Kind",
+  "pos": "n",
+  "zh": "孩子",
+  "note": "复数 Kinder"
+ },
+ {
+  "word": "Freund",
+  "pos": "n",
+  "zh": "朋友"
+ },
+ {
+  "word": "Lehrer",
+  "pos": "n",
+  "zh": "老师"
+ },
+ {
+  "word": "Schüler",
+  "pos": "n",
+  "zh": "学生"
+ },
+ {
+  "word": "Sprache",
+  "pos": "n",
+  "zh": "语言"
+ },
+ {
+  "word": "Wort",
+  "pos": "n",
+  "zh": "单词",
+  "note": "复数 Wörter"
+ },
+ {
+  "word": "Satz",
+  "pos": "n",
+  "zh": "句子",
+  "note": "复数 Sätze"
+ },
+ {
+  "word": "Zeit",
+  "pos": "n",
+  "zh": "时间"
+ },
+ {
+  "word": "Tag",
+  "pos": "n",
+  "zh": "天"
+ },
+ {
+  "word": "Nacht",
+  "pos": "n",
+  "zh": "夜"
+ },
+ {
+  "word": "Morgen",
+  "pos": "n",
+  "zh": "早晨/明天"
+ },
+ {
+  "word": "Abend",
+  "pos": "n",
+  "zh": "晚上"
+ },
+ {
+  "word": "Jahr",
+  "pos": "n",
+  "zh": "年"
+ },
+ {
+  "word": "Monat",
+  "pos": "n",
+  "zh": "月"
+ },
+ {
+  "word": "Woche",
+  "pos": "n",
+  "zh": "星期"
+ },
+ {
+  "word": "Arbeit",
+  "pos": "n",
+  "zh": "工作"
+ },
+ {
+  "word": "Schule",
+  "pos": "n",
+  "zh": "学校"
+ },
+ {
+  "word": "Universität",
+  "pos": "n",
+  "zh": "大学"
+ },
+ {
+  "word": "Bibliothek",
+  "pos": "n",
+  "zh": "图书馆"
+ },
+ {
+  "word": "Zug",
+  "pos": "n",
+  "zh": "火车"
+ },
+ {
+  "word": "Bahnhof",
+  "pos": "n",
+  "zh": "火车站"
+ },
+ {
+  "word": "Auto",
+  "pos": "n",
+  "zh": "汽车"
+ },
+ {
+  "word": "Fahrrad",
+  "pos": "n",
+  "zh": "自行车"
+ },
+ {
+  "word": "Weg",
+  "pos": "n",
+  "zh": "路/途径"
+ },
+ {
+  "word": "Zimmer",
+  "pos": "n",
+  "zh": "房间"
+ },
+ {
+  "word": "Küche",
+  "pos": "n",
+  "zh": "厨房"
+ },
+ {
+  "word": "Garten",
+  "pos": "n",
+  "zh": "花园"
+ },
+ {
+  "word": "Berg",
+  "pos": "n",
+  "zh": "山"
+ },
+ {
+  "word": "Fluss",
+  "pos": "n",
+  "zh": "河"
+ },
+ {
+  "word": "Meer",
+  "pos": "n",
+  "zh": "海"
+ },
+ {
+  "word": "Himmel",
+  "pos": "n",
+  "zh": "天空"
+ },
+ {
+  "word": "Sonne",
+  "pos": "n",
+  "zh": "太阳"
+ },
+ {
+  "word": "Mond",
+  "pos": "n",
+  "zh": "月亮"
+ },
+ {
+  "word": "Stern",
+  "pos": "n",
+  "zh": "星星"
+ },
+ {
+  "word": "Regen",
+  "pos": "n",
+  "zh": "雨"
+ },
+ {
+  "word": "Schnee",
+  "pos": "n",
+  "zh": "雪"
+ },
+ {
+  "word": "Wind",
+  "pos": "n",
+  "zh": "风"
+ },
+ {
+  "word": "Feuer",
+  "pos": "n",
+  "zh": "火"
+ },
+ {
+  "word": "Licht",
+  "pos": "n",
+  "zh": "光"
+ },
+ {
+  "word": "Musik",
+  "pos": "n",
+  "zh": "音乐"
+ },
+ {
+  "word": "Lied",
+  "pos": "n",
+  "zh": "歌"
+ },
+ {
+  "word": "Film",
+  "pos": "n",
+  "zh": "电影"
+ },
+ {
+  "word": "Spiel",
+  "pos": "n",
+  "zh": "游戏/比赛"
+ },
+ {
+  "word": "Frage",
+  "pos": "n",
+  "zh": "问题"
+ },
+ {
+  "word": "Antwort",
+  "pos": "n",
+  "zh": "回答"
+ },
+ {
+  "word": "Problem",
+  "pos": "n",
+  "zh": "问题/难题"
+ },
+ {
+  "word": "Lösung",
+  "pos": "n",
+  "zh": "解决办法"
+ },
+ {
+  "word": "Idee",
+  "pos": "n",
+  "zh": "想法"
+ },
+ {
+  "word": "Grund",
+  "pos": "n",
+  "zh": "原因/理由"
+ },
+ {
+  "word": "Beispiel",
+  "pos": "n",
+  "zh": "例子"
+ },
+ {
+  "word": "Meinung",
+  "pos": "n",
+  "zh": "意见"
+ },
+ {
+  "word": "Gefühl",
+  "pos": "n",
+  "zh": "感觉"
+ },
+ {
+  "word": "Angst",
+  "pos": "n",
+  "zh": "害怕"
+ },
+ {
+  "word": "Freude",
+  "pos": "n",
+  "zh": "快乐"
+ },
+ {
+  "word": "Liebe",
+  "pos": "n",
+  "zh": "爱"
+ },
+ {
+  "word": "Leben",
+  "pos": "n",
+  "zh": "生活/生命"
+ },
+ {
+  "word": "Gesundheit",
+  "pos": "n",
+  "zh": "健康"
+ },
+ {
+  "word": "Essen",
+  "pos": "n",
+  "zh": "食物/吃饭"
+ },
+ {
+  "word": "Kaffee",
+  "pos": "n",
+  "zh": "咖啡"
+ },
+ {
+  "word": "Tee",
+  "pos": "n",
+  "zh": "茶"
+ },
+ {
+  "word": "Milch",
+  "pos": "n",
+  "zh": "牛奶"
+ },
+ {
+  "word": "Apfel",
+  "pos": "n",
+  "zh": "苹果",
+  "note": "复数 Äpfel"
+ },
+ {
+  "word": "Käse",
+  "pos": "n",
+  "zh": "奶酪"
+ },
+ {
+  "word": "Fleisch",
+  "pos": "n",
+  "zh": "肉"
+ },
+ {
+  "word": "Fisch",
+  "pos": "n",
+  "zh": "鱼"
+ },
+ {
+  "word": "Zucker",
+  "pos": "n",
+  "zh": "糖"
+ },
+ {
+  "word": "Salz",
+  "pos": "n",
+  "zh": "盐"
+ },
+ {
+  "word": "gehen",
+  "pos": "v",
+  "zh": "走/去"
+ },
+ {
+  "word": "kommen",
+  "pos": "v",
+  "zh": "来"
+ },
+ {
+  "word": "sehen",
+  "pos": "v",
+  "zh": "看见",
+  "note": "sieht, sah, gesehen"
+ },
+ {
+  "word": "hören",
+  "pos": "v",
+  "zh": "听"
+ },
+ {
+  "word": "sprechen",
+  "pos": "v",
+  "zh": "说",
+  "note": "spricht, sprach, gesprochen"
+ },
+ {
+  "word": "lesen",
+  "pos": "v",
+  "zh": "读",
+  "note": "liest, las, gelesen"
+ },
+ {
+  "word": "schreiben",
+  "pos": "v",
+  "zh": "写",
+  "note": "schrieb, geschrieben"
+ },
+ {
+  "word": "lernen",
+  "pos": "v",
+  "zh": "学习"
+ },
+ {
+  "word": "arbeiten",
+  "pos": "v",
+  "zh": "工作"
+ },
+ {
+  "word": "spielen",
+  "pos": "v",
+  "zh": "玩/演奏"
+ },
+ {
+  "word": "essen",
+  "pos": "v",
+  "zh": "吃",
+  "note": "isst, aß, gegessen"
+ },
+ {
+  "word": "trinken",
+  "pos": "v",
+  "zh": "喝",
+  "note": "trank, getrunken"
+ },
+ {
+  "word": "schlafen",
+  "pos": "v",
+  "zh": "睡觉",
+  "note": "schläft, schlief, geschlafen"
+ },
+ {
+  "word": "wohnen",
+  "pos": "v",
+  "zh": "居住"
+ },
+ {
+  "word": "kaufen",
+  "pos": "v",
+  "zh": "买"
+ },
+ {
+  "word": "verkaufen",
+  "pos": "v",
+  "zh": "卖"
+ },
+ {
+  "word": "geben",
+  "pos": "v",
+  "zh": "给",
+  "note": "gibt, gab, gegeben"
+ },
+ {
+  "word": "nehmen",
+  "pos": "v",
+  "zh": "拿/取",
+  "note": "nimmt, nahm, genommen"
+ },
+ {
+  "word": "finden",
+  "pos": "v",
+  "zh": "找到",
+  "note": "fand, gefunden"
+ },
+ {
+  "word": "denken",
+  "pos": "v",
+  "zh": "想/认为",
+  "note": "dachte, gedacht"
+ },
+ {
+  "word": "wissen",
+  "pos": "v",
+  "zh": "知道",
+  "note": "weiß, wusste, gewusst"
+ },
+ {
+  "word": "verstehen",
+  "pos": "v",
+  "zh": "理解",
+  "note": "verstand, verstanden"
+ },
+ {
+  "word": "helfen",
+  "pos": "v",
+  "zh": "帮助",
+  "note": "hilft, half, geholfen"
+ },
+ {
+  "word": "brauchen",
+  "pos": "v",
+  "zh": "需要"
+ },
+ {
+  "word": "möchten",
+  "pos": "v",
+  "zh": "想要"
+ },
+ {
+  "word": "können",
+  "pos": "v",
+  "zh": "能够",
+  "note": "kann, konnte, gekonnt"
+ },
+ {
+  "word": "müssen",
+  "pos": "v",
+  "zh": "必须",
+  "note": "muss, musste, gemusst"
+ },
+ {
+  "word": "wollen",
+  "pos": "v",
+  "zh": "想要",
+  "note": "will, wollte, gewollt"
+ },
+ {
+  "word": "sollen",
+  "pos": "v",
+  "zh": "应该",
+  "note": "soll, sollte, gesollt"
+ },
+ {
+  "word": "dürfen",
+  "pos": "v",
+  "zh": "允许",
+  "note": "darf, durfte, gedurft"
+ },
+ {
+  "word": "gut",
+  "pos": "adj",
+  "zh": "好的"
+ },
+ {
+  "word": "schlecht",
+  "pos": "adj",
+  "zh": "坏的/差的"
+ },
+ {
+  "word": "groß",
+  "pos": "adj",
+  "zh": "大的"
+ },
+ {
+  "word": "klein",
+  "pos": "adj",
+  "zh": "小的"
+ },
+ {
+  "word": "alt",
+  "pos": "adj",
+  "zh": "老的/旧的"
+ },
+ {
+  "word": "jung",
+  "pos": "adj",
+  "zh": "年轻的"
+ },
+ {
+  "word": "neu",
+  "pos": "adj",
+  "zh": "新的"
+ },
+ {
+  "word": "schnell",
+  "pos": "adj",
+  "zh": "快的"
+ },
+ {
+  "word": "langsam",
+  "pos": "adj",
+  "zh": "慢的"
+ },
+ {
+  "word": "schön",
+  "pos": "adj",
+  "zh": "美的"
+ },
+ {
+  "word": "wichtig",
+  "pos": "adj",
+  "zh": "重要的"
+ },
+ {
+  "word": "schwer",
+  "pos": "adj",
+  "zh": "难的/重的"
+ },
+ {
+  "word": "leicht",
+  "pos": "adj",
+  "zh": "容易的/轻的"
+ },
+ {
+  "word": "richtig",
+  "pos": "adj",
+  "zh": "正确的"
+ },
+ {
+  "word": "falsch",
+  "pos": "adj",
+  "zh": "错误的"
+ }
+]

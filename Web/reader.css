@@ -1,0 +1,94 @@
+:root {
+  --fg: #1c1c1e;
+  --muted: #6b6b70;
+  --bg: #fbfaf7;
+  --accent: #b45309;
+  --active: rgba(180, 83, 9, 0.14);
+  --size: 19px;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --fg: #e8e6e1;
+    --muted: #9a9a9f;
+    --bg: #14140f;
+    --accent: #f0a35e;
+    --active: rgba(240, 163, 94, 0.20);
+  }
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: "New York", "Iowan Old Style", Georgia, "Times New Roman", serif;
+  font-size: var(--size);
+  line-height: 1.72;
+  -webkit-text-size-adjust: 100%;
+}
+
+#toolbar {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 6px 16px;
+  font-family: -apple-system, system-ui, sans-serif;
+  font-size: 12px;
+  color: var(--muted);
+  background: color-mix(in srgb, var(--bg) 88%, transparent);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid color-mix(in srgb, var(--fg) 10%, transparent);
+}
+
+#bookTitle {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+#content {
+  padding: 18px 20px 120px 20px;
+  max-width: 46rem;
+  margin: 0 auto;
+}
+
+.chapter { margin-bottom: 2.4em; }
+
+.chapter h1, .chapter h2, .chapter h3 {
+  line-height: 1.3;
+  margin: 1.4em 0 0.6em;
+}
+
+.chapter p { margin: 0 0 0.9em; }
+
+.chapter img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+  margin: 1em auto;
+}
+
+.s { transition: background-color 0.18s ease; border-radius: 4px; }
+
+.s.active {
+  background: var(--active);
+  box-shadow: 0 0 0 3px var(--active);
+}
+
+.w { cursor: pointer; }
+
+.w:active { color: var(--accent); }
+
+#empty {
+  font-family: -apple-system, system-ui, sans-serif;
+  font-size: 14px;
+  color: var(--muted);
+  padding: 40px 20px;
+  text-align: center;
+}
