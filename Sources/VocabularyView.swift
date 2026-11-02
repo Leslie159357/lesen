@@ -7,6 +7,7 @@ struct VocabularyView: View {
     @State private var reviewing = false
     @State private var index = 0
     @State private var revealed = false
+    @State private var exportFile: ExportFile?
     @StateObject private var speaker = Speaker()
     @Environment(\.dismiss) private var dismiss
 
@@ -28,8 +29,7 @@ struct VocabularyView: View {
                 ToolbarItem(placement: .topBarTrailing) {
                     HStack(spacing: 12) {
                         if !all.isEmpty {
-                            ShareLink(item: ShareFile(name: "vocabulary.csv",
-                                                      text: LexiconStore.shared.exportVocabulary())) {
+                            Button { exportCSV() } label: {
                                 Image(systemName: "square.and.arrow.up")
                             }
                         }
@@ -49,6 +49,9 @@ struct VocabularyView: View {
                 }
             }
             .onAppear(perform: reload)
+            .sheet(item: $exportFile) { file in
+                ActivityView(items: [file.url])
+            }
         }
     }
 
@@ -141,6 +144,18 @@ struct VocabularyView: View {
         LexiconStore.shared.review(word: word, remembered: remembered)
         index += 1
         revealed = false
+    }
+
+    private func exportCSV() {
+        let text = LexiconStore.shared.exportVocabulary()
+        let url = FileManager.default.temporaryDirectory
+            .appendingPathComponent("lesen-vocabulary-\(Int(Date().timeIntervalSince1970)).csv")
+        do {
+            try text.data(using: .utf8)?.write(to: url)
+            exportFile = ExportFile(url: url)
+        } catch {
+            print("[export] \(error)")
+        }
     }
 
     private func reload() {
