@@ -8,6 +8,8 @@ final class WebReader: NSObject, ObservableObject, WKScriptMessageHandler {
     @Published var isReady = false
     @Published var tappedWord = ""
     @Published var tappedSentence = ""
+    @Published var progressChapter = 0
+    @Published var progressPercent = 0.0
 
     override init() {
         let config = WKWebViewConfiguration()
@@ -32,6 +34,9 @@ final class WebReader: NSObject, ObservableObject, WKScriptMessageHandler {
         case "word":
             tappedWord = body["word"] as? String ?? ""
             tappedSentence = body["sentence"] as? String ?? ""
+        case "progress":
+            progressChapter = body["chapter"] as? Int ?? 0
+            progressPercent = body["percent"] as? Double ?? 0
         case "log":
             print("[reader] \(body["msg"] as? String ?? "")")
         default:
@@ -56,6 +61,18 @@ final class WebReader: NSObject, ObservableObject, WKScriptMessageHandler {
 
     func goToChapter(_ index: Int) {
         evaluate("OB.gotoChapter(\(index))")
+    }
+
+    func setPageMode(_ enabled: Bool) {
+        evaluate("OB.setMode('\(enabled ? "page" : "scroll")')")
+    }
+
+    func turnPage(_ direction: Int) {
+        evaluate("OB.page(\(direction))")
+    }
+
+    func restore(position: Int, percent: Double) {
+        evaluate("OB.restore(\(position), \(percent))")
     }
 
     func setFontScale(_ scale: Double) {

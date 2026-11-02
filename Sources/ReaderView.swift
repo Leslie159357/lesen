@@ -8,6 +8,9 @@ struct ReaderView: View {
     @StateObject private var audio = AudioEngine()
     @StateObject private var speaker = Speaker()
 
+    @AppStorage("reader.fontScale") private var fontScale: Double = 1.0
+    @AppStorage("reader.pageMode") private var pageMode: Bool = false
+
     @State private var overlayIndex = 0
     @State private var tapped = ""
     @State private var tappedSentence = ""
@@ -15,6 +18,7 @@ struct ReaderView: View {
     @State private var rate: Float = 1.0
     @State private var chapter = 0
     @State private var statusLine = ""
+    @State private var savedNotice = ""
 
     private var overlays: [OverlayEntry] { payload.overlays }
     private var hasAudio: Bool { !payload.audio.isEmpty }
@@ -29,6 +33,13 @@ struct ReaderView: View {
                 .ignoresSafeArea(edges: .bottom)
 
             VStack(spacing: 10) {
+                if !savedNotice.isEmpty {
+                    Text(savedNotice)
+                        .font(.caption2)
+                        .padding(.horizontal, 10)
+                        .padding(.vertical, 5)
+                        .background(.thinMaterial, in: Capsule())
+                }
                 if showCard { dictionaryCard }
                 controlBar
             }
@@ -40,24 +51,37 @@ struct ReaderView: View {
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
                 Menu {
+                    Button(pageMode ? "切换为滚动" : "切换为分页") {
+                        pageMode.toggle()
+                        reader.setPageMode(pageMode)
+                    }
+                    Divider()
+                    Button("字号 +") { adjustFont(1.15) }
+                    Button("字号 −") { adjustFont(0.87) }
+                    Divider()
                     Button("下一章") { nextChapter() }
-                    Button("字号 +") { reader.setFontScale(1.15) }
-                    Button("字号 −") { reader.setFontScale(0.87) }
                 } label: {
                     Image(systemName: "textformat.size")
                 }
             }
         }
         .onAppear(perform: setup)
+        .onDisappear(perform: persist)
         .onChange(of: reader.isReady) { _, ready in
-            if ready { reader.open(payload) }
+            guard ready else { return }
+            reader.open(payload)
+            reader.setPageMode(pageMode)
+            reader.setFontScale(fontScale)
+            if let progress = LexiconStore.shared.loadProgress(book: book.id) {
+                reader.restore(position: progress.chapter, percent: progress.percent)
+            }
         }
         .onChange(of: reader.tappedWord) { _, word in
             present(word: word, sentence: reader.tappedSentence)
         }
     }
 
-    // MARK: - setup
+    // MARK: - lifecycle
 
     private func setup() {
         if let url = audioURL {
@@ -68,6 +92,17 @@ struct ReaderView: View {
         statusLine = overlays.isEmpty
             ? (hasAudio ? "无 SMIL 时间轴：音频可播，逐句高亮不可用" : "本书没有音频")
             : "SMIL 时间轴 \(overlays.count) 段"
+    }
+
+    private func persist() {
+        LexiconStore.shared.saveProgress(book: book.id,
+                                         chapter: reader.progressChapter,
+                                         percent: reader.progressPercent)
+    }
+
+    private func adjustFont(_ factor: Double) {
+        fontScale = min(1.8, max(0.7, fontScale * factor))
+        reader.setFontScale(factor)
     }
 
     private func syncHighlight(at time: Double) {
@@ -101,6 +136,14 @@ struct ReaderView: View {
         reader.goToChapter(chapter)
     }
 
+    private func addToVocabulary() {
+        LexiconStore.shared.addToVocabulary(word: tapped, sentence: tappedSentence, book: book.id)
+        savedNotice = "已加入生词本（\(LexiconStore.shared.vocabularyCount()) 条）"
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.6) {
+            savedNotice = ""
+        }
+    }
+
     // MARK: - views
 
     private var dictionaryCard: some View {
@@ -121,16 +164,16 @@ struct ReaderView: View {
                 }
                 .buttonStyle(.borderless)
             }
-            if let entry = Dictionary.shared.lookup(tapped) {
+            if let entry = LexiconStore.shared.lookup(tapped) {
                 Text(entry.zh).font(.body)
-                if let pos = entry.pos {
-                    Text(pos).font(.caption).foregroundStyle(.secondary)
+                HStack(spacing: 8) {
+                    if let pos = entry.pos { Text(pos) }
+                    if let note = entry.note { Text(note) }
                 }
-                if let note = entry.note {
-                    Text(note).font(.caption).foregroundStyle(.secondary)
-                }
+                .font(.caption)
+                .foregroundStyle(.secondary)
             } else {
-                Text("本地词库没有这条（P0 只带 \(Dictionary.shared.count) 条演示词）")
+                Text("词库里没有这条（当前 \(LexiconStore.shared.count()) 条）")
                     .font(.caption).foregroundStyle(.secondary)
             }
             if !tappedSentence.isEmpty {
@@ -146,6 +189,13 @@ struct ReaderView: View {
                     .buttonStyle(.borderless)
                 }
             }
+            Button {
+                addToVocabulary()
+            } label: {
+                Label("加入生词本", systemImage: "bookmark")
+                    .font(.footnote)
+            }
+            .buttonStyle(.borderless)
         }
         .padding(12)
         .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 14))
@@ -156,8 +206,9 @@ struct ReaderView: View {
             if !statusLine.isEmpty {
                 Text(statusLine).font(.caption2).foregroundStyle(.secondary)
             }
-            HStack(spacing: 18) {
+            HStack(spacing: 14) {
                 Button { step(-1) } label: { Image(systemName: "backward.end.fill") }
+                    .disabled(overlays.isEmpty)
                 Button {
                     if audio.duration == 0, let url = audioURL {
                         audio.load(url: url)
@@ -170,7 +221,15 @@ struct ReaderView: View {
                     Image(systemName: audio.isPlaying ? "pause.circle.fill" : "play.circle.fill")
                         .font(.system(size: 34))
                 }
+                .disabled(!hasAudio)
                 Button { step(1) } label: { Image(systemName: "forward.end.fill") }
+                    .disabled(overlays.isEmpty)
+
+                if pageMode {
+                    Button { reader.turnPage(-1) } label: { Image(systemName: "chevron.left") }
+                    Button { reader.turnPage(1) } label: { Image(systemName: "chevron.right") }
+                }
+
                 Menu {
                     ForEach([0.75, 1.0, 1.25, 1.5], id: \.self) { value in
                         Button(String(format: "%.2fx", value)) {
@@ -183,7 +242,6 @@ struct ReaderView: View {
                 }
             }
             .buttonStyle(.borderless)
-            .disabled(!hasAudio)
         }
         .padding(.vertical, 8)
         .padding(.horizontal, 14)

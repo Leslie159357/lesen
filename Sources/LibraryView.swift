@@ -7,6 +7,7 @@ struct LibraryView: View {
     @State private var openBook: LibraryBook?
     @State private var openPayload: BookPayload?
     @State private var errorText: String?
+    @State private var showVocab = false
 
     private var epubType: UTType {
         UTType(filenameExtension: "epub") ?? .data
@@ -39,10 +40,16 @@ struct LibraryView: View {
             }
             .navigationTitle("精读")
             .toolbar {
+                ToolbarItem(placement: .topBarLeading) {
+                    Button { showVocab = true } label: {
+                        Image(systemName: "bookmark")
+                    }
+                }
                 ToolbarItem(placement: .topBarTrailing) {
                     Button { importing = true } label: { Image(systemName: "plus") }
                 }
             }
+            .sheet(isPresented: $showVocab) { VocabularyView() }
             .fileImporter(isPresented: $importing,
                           allowedContentTypes: [epubType],
                           allowsMultipleSelection: false) { result in

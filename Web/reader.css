@@ -92,3 +92,21 @@ html, body {
   padding: 40px 20px;
   text-align: center;
 }
+
+/* 分页模式：CSS 多栏 + 横向滚动，一栏 = 一页 */
+body.page-mode { overflow: hidden; }
+
+body.page-mode #content {
+  column-width: calc(100vw - 40px);
+  column-gap: 40px;
+  height: calc(100vh - 96px);
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-snap-type: x mandatory;
+  padding-bottom: 0;
+  -webkit-overflow-scrolling: touch;
+}
+
+body.page-mode .chapter { scroll-snap-align: start; margin-bottom: 0; }
+
+body.page-mode .chapter h1 { column-span: none; }

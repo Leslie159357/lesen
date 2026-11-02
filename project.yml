@@ -22,6 +22,7 @@ targets:
       - sdk: WebKit.framework
       - sdk: AVFoundation.framework
       - sdk: UniformTypeIdentifiers.framework
+      - sdk: libsqlite3.tbd
       - package: ZIPFoundation
         product: ZIPFoundation
     info:

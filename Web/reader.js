@@ -9,6 +9,8 @@
   var progressEl = document.getElementById('progress');
   var sections = [];
   var scale = 1;
+  var mode = 'scroll';
+  var lastProgress = 0;
 
   function post(payload) {
     try {
@@ -71,13 +73,33 @@
 
   function updateProgress() {
     if (!sections.length) return;
+    var now = Date.now();
+    if (now - lastProgress < 400) return;
+    lastProgress = now;
+
+    if (mode === 'page') {
+      var step = Math.max(1, content.clientWidth);
+      var pageIndex = Math.round(content.scrollLeft / step);
+      var pages = Math.max(1, Math.ceil(content.scrollWidth / step));
+      var percent = Math.min(1, (pageIndex + 1) / pages);
+      progressEl.textContent = (pageIndex + 1) + ' / ' + pages;
+      post({ type: 'progress', chapter: 0, percent: percent });
+      return;
+    }
+
     var idx = 0;
-    var top = content.getBoundingClientRect().top;
+    var scrolled = window.scrollY;
     sections.forEach(function (sec, i) {
-      var r = sec.getBoundingClientRect();
-      if (r.top <= 120) idx = i + 1;
+      if (sec.offsetTop <= scrolled + 140) idx = i;
     });
-    progressEl.textContent = (idx || 1) + ' / ' + sections.length;
+    var sec = sections[idx];
+    var ratio = 0;
+    if (sec) {
+      var height = sec.offsetHeight || 1;
+      ratio = Math.min(1, Math.max(0, (scrolled - sec.offsetTop + 140) / height));
+    }
+    progressEl.textContent = (idx + 1) + ' / ' + sections.length;
+    post({ type: 'progress', chapter: idx, percent: ratio });
   }
 
   window.OB = {
@@ -131,6 +153,34 @@
 
     clearHighlight: clearActive,
 
+    setMode: function (next) {
+      mode = next === 'page' ? 'page' : 'scroll';
+      document.body.classList.toggle('page-mode', mode === 'page');
+      // entering page mode: start from the top-left of the flow
+      content.scrollLeft = 0;
+      window.scrollTo(0, 0);
+      updateProgress();
+    },
+
+    page: function (direction) {
+      if (mode !== 'page') {
+        window.scrollBy({ top: direction * (window.innerHeight * 0.85), behavior: 'smooth' });
+        return;
+      }
+      content.scrollBy({ left: direction * content.clientWidth, behavior: 'smooth' });
+    },
+
+    restore: function (position, percent) {
+      if (mode === 'page') {
+        var target = Math.max(0, percent * content.scrollWidth - content.clientWidth);
+        content.scrollLeft = target;
+        return;
+      }
+      var sec = sections[position];
+      if (!sec) return;
+      window.scrollTo(0, sec.offsetTop + Math.max(0, percent * sec.offsetHeight) - 100);
+    },
+
     setFontScale: function (factor) {
       scale = Math.min(1.8, Math.max(0.7, scale * factor));
       document.documentElement.style.setProperty('--size', (19 * scale).toFixed(1) + 'px');
@@ -149,5 +199,6 @@
   });
 
   window.addEventListener('scroll', updateProgress, { passive: true });
+  content.addEventListener('scroll', updateProgress, { passive: true });
   post({ type: 'log', msg: 'reader.js loaded' });
 })();
