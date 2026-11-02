@@ -109,9 +109,9 @@ struct VocabularyView: View {
 
                 HStack(spacing: 16) {
                     if revealed {
-                        Button("忘了") { grade(item.word, true: false) }
+                        Button("忘了") { grade(item.word, remembered: false) }
                             .buttonStyle(.bordered)
-                        Button("记住了") { grade(item.word, true: true) }
+                        Button("记住了") { grade(item.word, remembered: true) }
                             .buttonStyle(.borderedProminent)
                     } else {
                         Button("看答案") { revealed = true }
