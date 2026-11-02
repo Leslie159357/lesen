@@ -9,6 +9,9 @@ packages:
   ZIPFoundation:
     url: https://github.com/weichsel/ZIPFoundation.git
     from: 0.9.19
+  MPVKit:
+    url: https://github.com/mpvkit/MPVKit.git
+    branch: main
 
 targets:
   Lesen:
@@ -25,11 +28,13 @@ targets:
       - sdk: libsqlite3.tbd
       - package: ZIPFoundation
         product: ZIPFoundation
+      - package: MPVKit
+        product: MPVKit
     info:
       path: Sources/Info.plist
       properties:
         CFBundleDisplayName: 精读
-        CFBundleShortVersionString: "0.4.0"
+        CFBundleShortVersionString: "0.5.0"
         CFBundleVersion: "3"
         UIBackgroundModes: [audio]
         UIFileSharingEnabled: true

@@ -24,6 +24,7 @@ struct ReaderView: View {
     @State private var aiBusy = false
     @State private var aiError = ""
     @StateObject private var cloudSpeaker = CloudSpeaker()
+    @StateObject private var mpv = MPVEngine()
 
     private var overlays: [OverlayEntry] { payload.overlays }
     private var hasAudio: Bool { !payload.audio.isEmpty }
@@ -86,6 +87,9 @@ struct ReaderView: View {
         .onChange(of: reader.tappedWord) { _, word in
             present(word: word, sentence: reader.tappedSentence)
         }
+        .onChange(of: mpv.time) { _, time in
+            if needsMPV { syncHighlight(at: time) }
+        }
         .sheet(isPresented: $showSearch) {
             SearchView(payload: payload) { index in
                 reader.goToChapter(index)
@@ -97,9 +101,14 @@ struct ReaderView: View {
 
     private func setup() {
         if let url = audioURL {
-            audio.load(url: url)
-            audio.setRate(rate)
-            audio.onTick = { time in syncHighlight(at: time) }
+            if needsMPV {
+                mpv.load(url: url)
+                mpv.setSpeed(Double(rate))
+            } else {
+                audio.load(url: url)
+                audio.setRate(rate)
+                audio.onTick = { time in syncHighlight(at: time) }
+            }
         }
         statusLine = overlays.isEmpty
             ? (hasAudio ? "无 SMIL 时间轴：音频可播，逐句高亮不可用" : "本书没有音频")
@@ -139,7 +148,7 @@ struct ReaderView: View {
         let next = max(0, min(overlays.count - 1, overlayIndex + delta))
         overlayIndex = next
         let entry = overlays[next]
-        audio.seek(entry.begin)
+        seek(entry.begin)
         reader.highlight(chapter: entry.chapter, id: entry.textId)
     }
 
@@ -154,6 +163,38 @@ struct ReaderView: View {
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.6) {
             savedNotice = ""
         }
+    }
+
+    private var needsMPV: Bool {
+        guard let url = audioURL else { return false }
+        let ext = url.pathExtension.lowercased()
+        return ["mkv", "mka", "webm", "ogg", "oga", "opus", "wma", "ape"].contains(ext)
+    }
+
+    private var playing: Bool {
+        needsMPV ? mpv.state == .playing : audio.isPlaying
+    }
+
+    private func togglePlayback() {
+        if needsMPV {
+            mpv.state == .playing ? mpv.pause() : mpv.play()
+            return
+        }
+        if audio.duration == 0, let url = audioURL {
+            audio.load(url: url)
+            audio.setRate(rate)
+            audio.play()
+        } else {
+            audio.toggle()
+        }
+    }
+
+    private func seek(_ time: Double) {
+        if needsMPV { mpv.seek(to: time) } else { audio.seek(time) }
+    }
+
+    private func applyRate(_ value: Float) {
+        if needsMPV { mpv.setSpeed(Double(value)) } else { audio.setRate(value) }
     }
 
     private func speak(_ text: String) {
@@ -273,15 +314,9 @@ struct ReaderView: View {
                 Button { step(-1) } label: { Image(systemName: "backward.end.fill") }
                     .disabled(overlays.isEmpty)
                 Button {
-                    if audio.duration == 0, let url = audioURL {
-                        audio.load(url: url)
-                        audio.setRate(rate)
-                        audio.play()
-                    } else {
-                        audio.toggle()
-                    }
+                    togglePlayback()
                 } label: {
-                    Image(systemName: audio.isPlaying ? "pause.circle.fill" : "play.circle.fill")
+                    Image(systemName: playing ? "pause.circle.fill" : "play.circle.fill")
                         .font(.system(size: 34))
                 }
                 .disabled(!hasAudio)
@@ -297,7 +332,7 @@ struct ReaderView: View {
                     ForEach([0.75, 1.0, 1.25, 1.5], id: \.self) { value in
                         Button(String(format: "%.2fx", value)) {
                             rate = Float(value)
-                            audio.setRate(Float(value))
+                            applyRate(Float(value))
                         }
                     }
                 } label: {
