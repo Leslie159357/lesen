@@ -19,6 +19,11 @@ struct ReaderView: View {
     @State private var chapter = 0
     @State private var statusLine = ""
     @State private var savedNotice = ""
+    @State private var showSearch = false
+    @State private var aiText = ""
+    @State private var aiBusy = false
+    @State private var aiError = ""
+    @StateObject private var cloudSpeaker = CloudSpeaker()
 
     private var overlays: [OverlayEntry] { payload.overlays }
     private var hasAudio: Bool { !payload.audio.isEmpty }
@@ -51,6 +56,8 @@ struct ReaderView: View {
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
                 Menu {
+                    Button("搜索本书") { showSearch = true }
+                    Divider()
                     Button(pageMode ? "切换为滚动" : "切换为分页") {
                         pageMode.toggle()
                         reader.setPageMode(pageMode)
@@ -78,6 +85,11 @@ struct ReaderView: View {
         }
         .onChange(of: reader.tappedWord) { _, word in
             present(word: word, sentence: reader.tappedSentence)
+        }
+        .sheet(isPresented: $showSearch) {
+            SearchView(payload: payload) { index in
+                reader.goToChapter(index)
+            }
         }
     }
 
@@ -144,6 +156,37 @@ struct ReaderView: View {
         }
     }
 
+    private func speak(_ text: String) {
+        if AISettings.shared.useCloudTTS && AISettings.shared.isConfigured {
+            cloudSpeaker.speak(text)
+        } else {
+            speaker.speak(text)
+        }
+    }
+
+    private func runAI(translate: Bool) {
+        let sentence = tappedSentence.isEmpty ? tapped : tappedSentence
+        guard !sentence.isEmpty else { return }
+        guard AISettings.shared.isConfigured else {
+            aiError = "先在「设置」里填接口地址和 Key"
+            return
+        }
+        aiBusy = true
+        aiError = ""
+        aiText = ""
+        Task { @MainActor in
+            do {
+                let result = translate
+                    ? try await AISettings.shared.translate(sentence)
+                    : try await AISettings.shared.explain(sentence)
+                aiText = result
+            } catch {
+                aiError = error.localizedDescription
+            }
+            aiBusy = false
+        }
+    }
+
     // MARK: - views
 
     private var dictionaryCard: some View {
@@ -151,7 +194,7 @@ struct ReaderView: View {
             HStack {
                 Text(tapped).font(.title3.weight(.semibold))
                 Button {
-                    speaker.speak(tapped)
+                    speak(tapped)
                 } label: {
                     Image(systemName: "speaker.wave.2.fill")
                 }
@@ -182,7 +225,7 @@ struct ReaderView: View {
                     Text(tappedSentence).font(.footnote).foregroundStyle(.secondary).lineLimit(3)
                     Spacer()
                     Button {
-                        speaker.speak(tappedSentence)
+                        speak(tappedSentence)
                     } label: {
                         Image(systemName: "play.circle")
                     }
@@ -196,6 +239,26 @@ struct ReaderView: View {
                     .font(.footnote)
             }
             .buttonStyle(.borderless)
+
+            HStack(spacing: 14) {
+                Button("翻译这句") { runAI(translate: true) }
+                    .font(.footnote)
+                    .buttonStyle(.borderless)
+                Button("讲解") { runAI(translate: false) }
+                    .font(.footnote)
+                    .buttonStyle(.borderless)
+                if aiBusy { ProgressView().controlSize(.small) }
+                Spacer()
+            }
+
+            if !aiText.isEmpty {
+                Text(aiText)
+                    .font(.footnote)
+                    .textSelection(.enabled)
+            }
+            if !aiError.isEmpty {
+                Text(aiError).font(.caption2).foregroundStyle(.red)
+            }
         }
         .padding(12)
         .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 14))

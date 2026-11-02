@@ -26,15 +26,23 @@ struct VocabularyView: View {
                     Button("关闭") { dismiss() }
                 }
                 ToolbarItem(placement: .topBarTrailing) {
-                    if !all.isEmpty {
-                        Button(reviewing ? "列表" : "复习 \(due.count)") {
-                            if reviewing {
-                                reviewing = false
-                            } else {
-                                reload()
-                                index = 0
-                                revealed = false
-                                reviewing = true
+                    HStack(spacing: 12) {
+                        if !all.isEmpty {
+                            ShareLink(item: ShareFile(name: "vocabulary.csv",
+                                                      text: LexiconStore.shared.exportVocabulary())) {
+                                Image(systemName: "square.and.arrow.up")
+                            }
+                        }
+                        if !all.isEmpty {
+                            Button(reviewing ? "列表" : "复习 \(due.count)") {
+                                if reviewing {
+                                    reviewing = false
+                                } else {
+                                    reload()
+                                    index = 0
+                                    revealed = false
+                                    reviewing = true
+                                }
                             }
                         }
                     }

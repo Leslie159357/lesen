@@ -304,6 +304,71 @@ final class LexiconStore {
 
     func vocabularyCount() -> Int { scalarInt("SELECT COUNT(*) FROM vocab") }
 
+    // MARK: - search & import
+
+    /// Full-text search over the lexicon (FTS first, LIKE as fallback for short input).
+    func search(_ raw: String, limit: Int = 50) -> [WordEntry] {
+        let q = raw.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+        guard !q.isEmpty, let db else { return [] }
+        var stmt: OpaquePointer?
+        defer { sqlite3_finalize(stmt) }
+        let sql: String
+        if q.count >= 2 {
+            sql = """
+            SELECT entry.word, entry.pos, entry.zh, entry.note
+            FROM entry_fts JOIN entry ON entry.id = entry_fts.rowid
+            WHERE entry_fts MATCH ? LIMIT \(limit)
+            """
+        } else {
+            sql = "SELECT word, pos, zh, note FROM entry WHERE lower(word) LIKE ? || '%' LIMIT \(limit)"
+        }
+        guard sqlite3_prepare_v2(db, sql, -1, &stmt, nil) == SQLITE_OK else { return [] }
+        sqlite3_bind_text(stmt, 1, q.count >= 2 ? q + "*" : q, -1, SQLITE_TRANSIENT)
+        var out: [WordEntry] = []
+        while sqlite3_step(stmt) == SQLITE_ROW {
+            if let entry = entryFrom(stmt) { out.append(entry) }
+        }
+        return out
+    }
+
+    /// Imports `word,pos,zh,note` rows (comma or tab separated, header optional).
+    @discardableResult
+    func importRows(_ text: String) -> Int {
+        var added = 0
+        for line in text.split(whereSeparator: { $0 == "\n" || $0 == "\r\n" }) {
+            let trimmed = line.trimmingCharacters(in: .whitespaces)
+            if trimmed.isEmpty { continue }
+            let sep: Character = trimmed.contains("\t") ? "\t" : ","
+            let cols = trimmed.split(separator: sep).map { $0.trimmingCharacters(in: .whitespaces) }
+            guard cols.count >= 2 else { continue }
+            let head = cols[0].lowercased()
+            if head == "word" || head == "词条" { continue }
+            let entry = WordEntry(word: cols[0],
+                                  pos: cols.count > 1 ? cols[1] : nil,
+                                  zh: cols.count > 2 ? cols[2] : "",
+                                  note: cols.count > 3 ? cols[3] : nil)
+            insertEntry(entry)
+            seedInflections(for: entry)
+            added += 1
+        }
+        if added > 0 {
+            exec("INSERT INTO entry_fts(entry_fts) VALUES('rebuild');")
+        }
+        return added
+    }
+
+    func exportVocabulary() -> String {
+        var lines = ["word,pos,zh,sentence,box"]
+        for item in vocabulary(dueOnly: false) {
+            let entry = lookup(item.word)
+            let pos = entry?.pos ?? ""
+            let zh = entry?.zh ?? ""
+            let sentence = item.sentence.replacingOccurrences(of: ",", with: "，")
+            lines.append("\(item.word),\(pos),\(zh),\(sentence),\(item.box)")
+        }
+        return lines.joined(separator: "\n")
+    }
+
     func removeFromVocabulary(_ word: String) {
         guard let db else { return }
         var stmt: OpaquePointer?
