@@ -72,6 +72,12 @@ final class LexiconStore {
             updated REAL NOT NULL
         );
         """)
+        exec("""
+        CREATE TABLE IF NOT EXISTS alias(
+            word TEXT PRIMARY KEY,
+            target TEXT NOT NULL
+        );
+        """)
     }
 
     private func seedIfEmpty() {
@@ -82,9 +88,32 @@ final class LexiconStore {
         exec("BEGIN;")
         for e in list {
             insertEntry(e)
+            seedInflections(for: e)
         }
         exec("COMMIT;")
         exec("INSERT INTO entry_fts(entry_fts) VALUES('rebuild');")
+    }
+
+    /// German text is heavily inflected: pull the forms we documented in `note`
+    /// ("复数 Häuser", "spricht, sprach, gesprochen") into an alias table so a
+    /// tap on "Häuser" still lands on "Haus".
+    private func seedInflections(for entry: WordEntry) {
+        guard let note = entry.note, !note.isEmpty, let db else { return }
+        let stripped = note.replacingOccurrences(of: "复数", with: "")
+        let tokens = stripped
+            .split(whereSeparator: { ",、/;".contains($0) })
+            .map { $0.trimmingCharacters(in: .whitespaces) }
+            .filter { !$0.isEmpty && $0.rangeOfCharacter(from: .letters) != nil }
+        for token in tokens {
+            let form = token.lowercased()
+            guard form != entry.word.lowercased(), form.count > 1 else { continue }
+            var stmt: OpaquePointer?
+            defer { sqlite3_finalize(stmt) }
+            guard sqlite3_prepare_v2(db, "INSERT OR IGNORE INTO alias(word, target) VALUES(?,?)", -1, &stmt, nil) == SQLITE_OK else { return }
+            sqlite3_bind_text(stmt, 1, form, -1, SQLITE_TRANSIENT)
+            sqlite3_bind_text(stmt, 2, entry.word.lowercased(), -1, SQLITE_TRANSIENT)
+            sqlite3_step(stmt)
+        }
     }
 
     // MARK: - sqlite helpers
@@ -132,6 +161,11 @@ final class LexiconStore {
             if let hit = query("SELECT word, pos, zh, note FROM entry WHERE lower(word)=? LIMIT 1", candidate) {
                 return hit
             }
+            if let target = aliasTarget(candidate),
+               let hit = query("SELECT word, pos, zh, note FROM entry WHERE lower(word)=? LIMIT 1", target) {
+                return WordEntry(word: hit.word, pos: hit.pos, zh: hit.zh,
+                                 note: (hit.note ?? "") + "（\(candidate) 是其变形）")
+            }
         }
         for candidate in candidates(for: base) where candidate.count >= 3 {
             if let hit = query("SELECT word, pos, zh, note FROM entry WHERE lower(word) LIKE ? || '%' LIMIT 1", candidate) {
@@ -151,6 +185,16 @@ final class LexiconStore {
             out.append(String(word.dropLast(suffix.count)))
         }
         return out
+    }
+
+    private func aliasTarget(_ word: String) -> String? {
+        guard let db else { return nil }
+        var stmt: OpaquePointer?
+        defer { sqlite3_finalize(stmt) }
+        guard sqlite3_prepare_v2(db, "SELECT target FROM alias WHERE word=? LIMIT 1", -1, &stmt, nil) == SQLITE_OK else { return nil }
+        sqlite3_bind_text(stmt, 1, word, -1, SQLITE_TRANSIENT)
+        guard sqlite3_step(stmt) == SQLITE_ROW, let c = sqlite3_column_text(stmt, 0) else { return nil }
+        return String(cString: c)
     }
 
     private func query(_ sql: String, _ arg: String) -> WordEntry? {
